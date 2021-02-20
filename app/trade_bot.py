@@ -1,33 +1,25 @@
-import configparser, os, logging
+import os
+import time
+from utils import FileOperations
+from adapters.config import ConfigAdapter
+from adapters.log import LoggingAdapter
 
 def main():
-    # Config consts
-    CFG_FL_NAME = 'user.cfg'
-    USER_CFG_SECTION = 'binance_user_config'
+    # Config Initialisation
+    CONFIG_DIR = os.getenv("CONFIG_DIR", default="/config")
+    CONFIG_NAME = os.getenv("CONFIG_NAME", default="user.cfg")
+    config = ConfigAdapter(CONFIG_DIR, CONFIG_NAME)
 
-    # Init config
-    config = configparser.ConfigParser()
-    if not os.path.exists(CFG_FL_NAME):
-        print('No configuration file (user.cfg) found! See README.')
-        exit()
-    config.read(CFG_FL_NAME)
+    # Logging Initialisation
+    logger = LoggingAdapter(config)
 
-    # Logger setup
-    logger = logging.getLogger('crypto_trader_logger')
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh = logging.FileHandler('crypto_trading.log')
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    client = ExchangeClientAdapter(config)
 
-    # logging to console
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    # file_name = "/state/.current_coin_sample"
+    # current_coin_name = "TEST"
+    # def write_coin_backup(file, content):
+    #     file.write(content)
 
-    logger.info("Started")
-
+    # FileOperations.write(file_name, current_coin_name, write_coin_backup)
 if __name__ == "__main__":
     main()
