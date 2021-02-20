@@ -6,6 +6,8 @@ services:
     container_name: binance-trade-bot
     environment:
       TZ: Australia/Melbourne
+      CONFIG_DIR: /config
+      CONFIG_NAME: user.cfg
     volumes:
     - ./config:/config
     - ./log:/log
