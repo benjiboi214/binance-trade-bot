@@ -2,19 +2,14 @@ import logging
 import sys
 import os
 
-from utils import NestedNamespace
-
 
 class LoggingAdapter():
     # TODO - Implement alternate error streams
-
-    VALUES = NestedNamespace({
-        "CONFIG_SECTION": "logging"
-    })
+    CONFIG_SECTION_NAME = "logging"
 
     def __init__(self, config):
         self.logger_name = config.get(
-            self.VALUES.CONFIG_SECTION, "logger_name")
+            self.CONFIG_SECTION_NAME, "logger_name")
         self.logger = logging.getLogger(self.logger_name)
         # Let handlers decide what level to publish & where
         self.logger.setLevel(logging.DEBUG)
@@ -24,34 +19,34 @@ class LoggingAdapter():
 
     def __prepare_formatter(self, config):
         format_string = config.get(
-            self.VALUES.CONFIG_SECTION, "formatter")
+            self.CONFIG_SECTION_NAME, "formatter")
         self.formatter = logging.Formatter(format_string)
 
     def __prepare_handlers(self, config):
         # Configure Console
         console_enabled = config.getboolean(
-            self.VALUES.CONFIG_SECTION, "console_enabled")
+            self.CONFIG_SECTION_NAME, "console_enabled")
         if console_enabled:
             HandlerClass = logging.StreamHandler
             destination = sys.stdout
             level = config.get(
-                self.VALUES.CONFIG_SECTION, "console_level")
+                self.CONFIG_SECTION_NAME, "console_level")
             formatter = self.formatter
             self.__configure_handler(
                 HandlerClass, destination, level, formatter)
 
         # Configure File
         file_enabled = config.getboolean(
-            self.VALUES.CONFIG_SECTION, "console_enabled")
+            self.CONFIG_SECTION_NAME, "console_enabled")
         if file_enabled:
             HandlerClass = logging.FileHandler
             file_directory = config.get(
-                self.VALUES.CONFIG_SECTION, "file_directory")
+                self.CONFIG_SECTION_NAME, "file_directory")
             file_name = config.get(
-                self.VALUES.CONFIG_SECTION, "file_name")
+                self.CONFIG_SECTION_NAME, "file_name")
             destination = os.path.join(file_directory, file_name)
             level = config.get(
-                self.VALUES.CONFIG_SECTION, "file_level")
+                self.CONFIG_SECTION_NAME, "file_level")
             formatter = self.formatter
             self.__configure_handler(
                 HandlerClass, destination, level, formatter)
@@ -61,3 +56,15 @@ class LoggingAdapter():
         handler.setLevel(level)
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
+    
+    def debug(self, *args, **kwargs):
+        return self.logger.debug(*args, **kwargs)
+
+    def info(self, *args, **kwargs):
+        return self.logger.info(*args, **kwargs)
+    
+    def warning(self, *args, **kwargs):
+        return self.logger.warning(*args, **kwargs)
+    
+    def error(self, *args, **kwargs):
+        return self.logger.error(*args, **kwargs)
