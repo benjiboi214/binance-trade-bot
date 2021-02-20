@@ -1,11 +1,12 @@
 version: "3"
 
 services:
-  crypto-trading:
+  trade-bot:
     build: .
-    container_name: binance_trader
+    container_name: binance-trade-bot
     environment:
       TZ: Australia/Melbourne
     volumes:
-    - ./user.cfg:/app/user.cfg
-    - ./:/app
+    - ./config:/config
+    - ./log:/log
+    - ./state:/state
