@@ -418,15 +418,22 @@ def scout(client, transaction_fee=0.001, multiplier=5):
             continue
 
         # Obtain (current coin)/(optional coin)
-        coin_opt_coin_ratio = current_coin_price / \
-           optional_coin_price
+        coin_opt_coin_ratio = (current_coin_price / optional_coin_price) * (1 - transaction_fee * multiplier)
 
-        if (coin_opt_coin_ratio - transaction_fee * multiplier * coin_opt_coin_ratio) > g_state.coin_table[g_state.current_coin][optional_coin]:
+        if coin_opt_coin_ratio > g_state.coin_table[g_state.current_coin][optional_coin]:
             logger.info('Will be jumping from {0} to {1}'.format(
                 g_state.current_coin, optional_coin))
             transaction_through_tether(
                 client, g_state.current_coin, optional_coin)
             break
+        else:
+            text = 'Will not jump to coin {0}. Curr: {1}. Req: {2}. Diff: {3}'.format(
+                optional_coin, 
+                coin_opt_coin_ratio, 
+                g_state.coin_table[g_state.current_coin][optional_coin], 
+                g_state.coin_table[g_state.current_coin][optional_coin] - coin_opt_coin_ratio
+            )
+            logger.debug(text)
 
 
 def main():
@@ -446,7 +453,10 @@ def main():
     while True:
         try:
             time.sleep(5)
-            scout(client)
+            logger.debug(" # # # # # # # # # # # #\n")
+            logger.debug(" # # # # Scoutin # # # #\n")
+            logger.debug(" # # # # # # # # # # # #\n")
+            scout(client, 0.075)
         except Exception as e:
             logger.info('Error while scouting...\n{}\n'.format(e))
 
