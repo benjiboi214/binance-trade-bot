@@ -20,6 +20,7 @@ class LoggingAdapter():
         self.logger.setLevel(logging.DEBUG)
         self.__prepare_formatter(config)
         self.__prepare_handlers(config)
+        self.logger.info("Logging successfully initialised")
 
     def __prepare_formatter(self, config):
         format_string = config.get(
