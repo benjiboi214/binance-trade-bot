@@ -1,9 +1,14 @@
-*.log
-.current_coin
-.current_coin_table
+# App Dirs
+config/*.cfg
+log/*.log
+state/.*
+!state/.gitkeep
+
+# Python Cache
 *.pyc
 __pycache__
+
+# IDE
 nohup.out
-user.cfg
 .idea/
 .vscode/
