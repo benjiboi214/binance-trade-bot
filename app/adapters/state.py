@@ -43,13 +43,14 @@ class StateAdapter(ConfigAccessor):
         "Unable to locate supported coins list at {}"
     )
 
-    def __init__(self, config, logger, client):
+    def __init__(self, config, logger):
         super().__init__()
         self._save_config(config)
         self.__logger = logger
 
         self.__supported_coins = self.__get_supported_coins_from_file()
         self.__backup_path = self.__get_backup_path()
+        self.__default_state = False
 
         try:
             self.__load_state_from_backup()
@@ -83,8 +84,13 @@ class StateAdapter(ConfigAccessor):
 
     @coin_table.setter
     def coin_table(self, coin_table):
-        self.__backup_state(coin_table=coin_table)
+        self.default_state = False
         self.__coin_table = coin_table
+        self.__backup_state(coin_table=coin_table)
+
+    @property
+    def default_state(self):
+        return self.__default_state
 
     def __backup_state(self, current_coin=None, coin_table=None):
         if current_coin is None:
@@ -135,6 +141,7 @@ class StateAdapter(ConfigAccessor):
             )
             for coin_entry in self.__supported_coins
         )
+        self.default_state = True
 
         self.__backup_state()
 
