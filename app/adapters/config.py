@@ -1,8 +1,20 @@
+from abc import ABC, abstractmethod
 import os, configparser, pickle
 
 
 class ConfigNotFound(Exception):
     pass
+
+
+class ConfigAccessor:
+    def _save_config(self, config):
+        self._config = config
+
+    def _get_config(self, name):
+        return self._config.get(self.CONFIG_SECTION_NAME, name)
+
+    def _get_boolean_config(self, name):
+        return self._config.getboolean(self.CONFIG_SECTION_NAME, name)
 
 
 class ConfigAdapter:
