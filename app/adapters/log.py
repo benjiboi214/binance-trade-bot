@@ -23,7 +23,7 @@ class LoggingAdapter(ConfigAccessor):
     CONFIG_FILE_NAME = "file_name"
     CONFIG_FILE_LEVEL = "file_level"
 
-    SUCCESS_LOG_MESSAGE = "Logging successfully initialised"
+    LOG_SUCCESS_MESSAGE = "Logging successfully initialised"
 
     def __init__(self, config):
         super().__init__()
@@ -33,7 +33,7 @@ class LoggingAdapter(ConfigAccessor):
         self.__prepare_formatter()
         self.__prepare_handlers()
 
-        self.logger.debug(LoggingAdapter.SUCCESS_LOG_MESSAGE)
+        self.logger.debug(LoggingAdapter.LOG_SUCCESS_MESSAGE)
 
     def __prepare_logger(self):
         self.logger_name = self._get_config(LoggingAdapter.CONFIG_LOGGER_NAME)
