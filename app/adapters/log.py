@@ -15,7 +15,7 @@ class LoggingAdapter():
         self.logger.setLevel(logging.DEBUG)
         self.__prepare_formatter(config)
         self.__prepare_handlers(config)
-        self.logger.info("Logging successfully initialised")
+        self.logger.debug("Logging successfully initialised")
 
     def __prepare_formatter(self, config):
         format_string = config.get(
@@ -68,3 +68,6 @@ class LoggingAdapter():
     
     def error(self, *args, **kwargs):
         return self.logger.error(*args, **kwargs)
+
+    def exception(self, *args, **kwargs):
+        return self.logger.exception(*args, **kwargs)
