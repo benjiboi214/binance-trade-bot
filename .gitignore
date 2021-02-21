@@ -12,3 +12,6 @@ __pycache__
 nohup.out
 .idea/
 .vscode/
+
+# Coin State
+backup.json
