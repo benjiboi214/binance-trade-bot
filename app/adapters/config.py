@@ -1,5 +1,8 @@
 import os, configparser, pickle
 
+class ConfigNotFound(Exception):
+    pass
+
 class ConfigAdapter():
     @staticmethod
     def deep_copy_config(config):
@@ -28,6 +31,7 @@ class ConfigAdapter():
         return parser
 
     def __init__(self, config_dir, config_name):
+        self.config_dir = config_dir
         config_path = os.path.join(config_dir, config_name)
 
         if not os.path.exists(config_path):
@@ -49,7 +53,10 @@ class ConfigAdapter():
         self.__parser = parser
     
     def get(self, *args, **kwargs):
-        return self.__parser.get(*args, **kwargs)
+        try:
+            return self.__parser.get(*args, **kwargs)
+        except Exception as e:
+            raise ConfigNotFound("No configuration for '{}' in section '{}'".format(args[0], args[1]))
 
     def getboolean(self, *args, **kwargs):
         return self.__parser.getboolean(*args, **kwargs)
