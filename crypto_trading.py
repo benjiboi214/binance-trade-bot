@@ -460,15 +460,6 @@ def scout(client: Client, transaction_fee=0.001, multiplier=5):
             )
             transaction_through_tether(client, current_coin, pair.to_coin)
             break
-        else:
-            text = "Will not jump to coin {0}. Curr: {1}. Req: {2}. Diff: {3}".format(
-                optional_coin,
-                coin_opt_coin_ratio,
-                g_state.coin_table[g_state.current_coin][optional_coin],
-                g_state.coin_table[g_state.current_coin][optional_coin]
-                - coin_opt_coin_ratio,
-            )
-            logger.debug(text)
 
 
 def migrate_old_state():
@@ -543,10 +534,7 @@ def main():
     while True:
         try:
             time.sleep(5)
-            logger.debug(" # # # # # # # # # # # #\n")
-            logger.debug(" # # # # Scoutin # # # #\n")
-            logger.debug(" # # # # # # # # # # # #\n")
-            scout(client, 0.075)
+            scout(client)
         except Exception as e:
             logger.info("Error while scouting...\n{}\n".format(traceback.format_exc()))
 
