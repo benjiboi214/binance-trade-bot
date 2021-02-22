@@ -16,6 +16,9 @@ class ConfigAccessor:
     def _get_boolean_config(self, name):
         return self._config.getboolean(self.CONFIG_SECTION_NAME, name)
 
+    def _get_int_config(self, name):
+        return self._config.getint(self.CONFIG_SECTION_NAME, name)
+
 
 class ConfigAdapter:
     """
@@ -82,3 +85,6 @@ class ConfigAdapter:
 
     def getboolean(self, *args, **kwargs):
         return self.__parser.getboolean(*args, **kwargs)
+
+    def getint(self, *args, **kwargs):
+        return self.__parser.getint(*args, **kwargs)
