@@ -2,7 +2,7 @@ import json
 import os
 
 from adapters.config import ConfigAccessor
-from utils import FileOperations
+from utils import FileOperations, first_from_iterable
 
 
 class StateBackupNotFound(Exception):
@@ -17,6 +17,10 @@ class UnsupportedCoin(Exception):
     pass
 
 
+class MissingTickersList(Exception):
+    pass
+
+
 class StateAdapter(ConfigAccessor):
     """
     TODO - Update description of State Adapter
@@ -26,7 +30,7 @@ class StateAdapter(ConfigAccessor):
     CONFIG_SECTION_NAME = "state"
     CONFIG_BACKUP_DIRECTORY = "backup_directory"
     CONFIG_BACKUP_FILENAME = "backup_filename"
-    CONFIG_START_COIN = "start_coin"
+    CONFIG_DEFAULT_COIN = "default_coin"
     CONFIG_SUPPORTED_COINS_FILENAME = "supported_coins_filename"
 
     BACKUP_COIN_TABLE = "coin_table"
@@ -42,6 +46,10 @@ class StateAdapter(ConfigAccessor):
     LOG_SUPPORTED_COINS_FILE_NOT_FOUND_MESSAGE = (
         "Unable to locate supported coins list at {}"
     )
+    LOG_MISSING_TICKERS_MESSAGE = (
+        "Must have set 'all_tickers' before calling this function"
+    )
+    LOG_SYMBOL_NOT_FOUND_MESSAGE = "Could not find ticker with symbol %s"
 
     def __init__(self, config, logger):
         super().__init__()
@@ -60,13 +68,19 @@ class StateAdapter(ConfigAccessor):
 
         self.__logger.debug(StateAdapter.LOG_SUCCESS_MESSAGE)
 
-    def __check_coin_supported(self, origin, coin):
-        if not coin in self.__supported_coins:
-            raise UnsupportedCoin(
-                StateAdapter.LOG_UNSUPPORTED_COIN_MESSAGE.format(
-                    origin, coin, self.__supported_coins
-                )
+    def get_ticker_by_name(self, symbol):
+        try:
+            ticker = first_from_iterable(
+                self.all_tickers, condition=lambda x: x[u"symbol"] == symbol
             )
+        except AttributeError as e:
+            raise MissingTickersList(StateAdapter.LOG_MISSING_TICKERS_MESSAGE)
+
+        if not ticker:
+            self.__logger.warning(StateAdapter.LOG_SYMBOL_NOT_FOUND_MESSAGE, symbol)
+            return None
+
+        return dict(symbol=ticker[u"symbol"], price=float(ticker[u"price"]))
 
     @property
     def current_coin(self):
@@ -84,13 +98,21 @@ class StateAdapter(ConfigAccessor):
 
     @coin_table.setter
     def coin_table(self, coin_table):
-        self.default_state = False
+        self.__default_state = False
         self.__coin_table = coin_table
         self.__backup_state(coin_table=coin_table)
 
     @property
     def default_state(self):
         return self.__default_state
+
+    def __check_coin_supported(self, origin, coin):
+        if not coin in self.__supported_coins:
+            raise UnsupportedCoin(
+                StateAdapter.LOG_UNSUPPORTED_COIN_MESSAGE.format(
+                    origin, coin, self.__supported_coins
+                )
+            )
 
     def __backup_state(self, current_coin=None, coin_table=None):
         if current_coin is None:
@@ -128,10 +150,10 @@ class StateAdapter(ConfigAccessor):
     def __initialise_default_state(self):
         self.__logger.info(StateAdapter.LOG_INIT_FROM_DEFAULTS_MESSAGE)
 
-        start_coin = self._get_config(StateAdapter.CONFIG_START_COIN)
-        self.__check_coin_supported(StateAdapter.CONFIG_START_COIN, start_coin)
+        default_coin = self._get_config(StateAdapter.CONFIG_DEFAULT_COIN)
+        self.__check_coin_supported(StateAdapter.CONFIG_DEFAULT_COIN, default_coin)
 
-        self.__current_coin = start_coin
+        self.__current_coin = default_coin
         self.__coin_table = dict(
             (
                 coin_entry,
@@ -141,7 +163,7 @@ class StateAdapter(ConfigAccessor):
             )
             for coin_entry in self.__supported_coins
         )
-        self.default_state = True
+        self.__default_state = True
 
         self.__backup_state()
 
