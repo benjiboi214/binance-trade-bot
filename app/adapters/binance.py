@@ -25,9 +25,9 @@ class ExchangeClientAdapter(ConfigAccessor):
 
         api_key = self._get_config(ExchangeClientAdapter.CONFIG_API_KEY)
         api_secret_key = self._get_config(ExchangeClientAdapter.CONFIG_API_SECRET_KEY)
-        self.client = BinanceClient(api_key, api_secret_key)
+        self.__client = BinanceClient(api_key, api_secret_key)
 
         self.__logger.debug(ExchangeClientAdapter.LOG_SUCCESS_MESSAGE)
 
     def get_all_tickers(self):
-        return self.client.get_all_tickers()
+        return self.__client.get_all_tickers()
