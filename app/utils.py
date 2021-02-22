@@ -4,10 +4,10 @@ from types import SimpleNamespace
 
 
 class NestedNamespace(SimpleNamespace):
-    '''
+    """
     Used for achieving JS-like dot notated dicts in python.
     implementation pulled from: https://stackoverflow.com/a/54332748/5680716
-    '''
+    """
 
     def __init__(self, dictionary, **kwargs):
         super().__init__(**kwargs)
@@ -18,14 +18,12 @@ class NestedNamespace(SimpleNamespace):
                 self.__setattr__(key, value)
 
 
-class FileOperations():
-    '''
+class FileOperations:
+    """
     Mostly static based class used for common file operations
-    '''
-    MODES = NestedNamespace({
-        "WRITE": "w",
-        "READ": "r"
-    })
+    """
+
+    MODES = NestedNamespace({"WRITE": "w", "READ": "r"})
 
     @staticmethod
     def read_json(open_file):
@@ -46,3 +44,10 @@ class FileOperations():
         access_mode = FileOperations.MODES.READ
         with open(filename, access_mode) as open_file:
             return read_function(open_file)
+
+
+def first_from_iterable(iterable, condition=lambda x: True):
+    try:
+        return next(x for x in iterable if condition(x))
+    except StopIteration:
+        return None
